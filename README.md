@@ -14,7 +14,7 @@ A modern Next.js template with built-in support for:
 Create a new project using this template:
 
 ```bash
-npx create-next-app@latest my-app --example https://github.com/yourusername/nextjs-template
+npx create-next-app@latest my-app --example https://github.com/ElixScho/nextjs-template
 ```
 
 Once the project is created:

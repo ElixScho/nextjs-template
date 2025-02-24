@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import chalk from "chalk";
 import type { SetupModule } from "./types";
-import { updateRootLayout } from "./utils";
+import { updateRootLayout, updateEnvVariables } from "./utils";
 
 const authModule: SetupModule = {
     name: "addAuth",
@@ -12,19 +12,76 @@ const authModule: SetupModule = {
         default: true,
     },
     setup: async context => {
-        console.log(chalk.yellow("Adding Clerk authentication..."));
+        console.log(chalk.yellow("\nAdding Clerk authentication..."));
         if (await context.execCommand("npm install @clerk/nextjs")) {
-            // Update environment variables
-            context.updateEnvFile(
+            // Guide user through Clerk setup
+            console.log(chalk.cyan("\nℹ️  Clerk Setup Instructions:"));
+            console.log(chalk.white("1. Go to https://dashboard.clerk.com"));
+            console.log(
+                chalk.white(
+                    "2. Create a new application or select an existing one"
+                )
+            );
+            console.log(chalk.white("3. In your Clerk Dashboard:"));
+            console.log(chalk.white("   - Go to API Keys"));
+            console.log(chalk.white("   - Copy your 'Publishable Key'"));
+            console.log(chalk.white("   - Copy your 'Secret Key'"));
+
+            // Prompt user for input
+            const inquirer = (await import("inquirer")).default;
+            const answers = await inquirer.prompt([
                 {
-                    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "your_publishable_key",
-                    CLERK_SECRET_KEY: "your_secret_key",
-                    NEXT_PUBLIC_CLERK_SIGN_IN_URL: "/sign-in",
-                    NEXT_PUBLIC_CLERK_SIGN_UP_URL: "/sign-up",
-                    NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: "/",
-                    NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: "/",
+                    type: "input",
+                    name: "publishableKey",
+                    message: "Enter your Clerk Publishable Key:",
+                    default: "pk_test_",
                 },
-                "Clerk Authentication (Get these from https://dashboard.clerk.com)"
+                {
+                    type: "input",
+                    name: "secretKey",
+                    message: "Enter your Clerk Secret Key:",
+                    default: "sk_test_",
+                },
+            ]);
+
+            // Update environment variables
+            updateEnvVariables(
+                context.projectPath,
+                [
+                    {
+                        key: "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+                        value: answers.publishableKey,
+                        description:
+                            "Your Clerk publishable key (starts with pk_)",
+                    },
+                    {
+                        key: "CLERK_SECRET_KEY",
+                        value: answers.secretKey,
+                        description: "Your Clerk secret key (starts with sk_)",
+                        isSecret: true,
+                    },
+                    {
+                        key: "NEXT_PUBLIC_CLERK_SIGN_IN_URL",
+                        value: "/sign-in",
+                        description: "URL for the sign in page",
+                    },
+                    {
+                        key: "NEXT_PUBLIC_CLERK_SIGN_UP_URL",
+                        value: "/sign-up",
+                        description: "URL for the sign up page",
+                    },
+                    {
+                        key: "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL",
+                        value: "/",
+                        description: "URL to redirect to after sign in",
+                    },
+                    {
+                        key: "NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL",
+                        value: "/",
+                        description: "URL to redirect to after sign up",
+                    },
+                ],
+                "Clerk Authentication"
             );
 
             // Create middleware for protected routes
@@ -163,15 +220,22 @@ export default function SignUpPage() {
                 )
             );
             console.log(chalk.cyan("\nℹ️  Next steps:"));
-            console.log(chalk.cyan("   1. Add your Clerk keys to .env.local"));
+            console.log(
+                chalk.cyan("1. Verify your Clerk keys in .env and .env.local")
+            );
             console.log(
                 chalk.cyan(
-                    "   2. Visit http://localhost:3000 and test the auth flow"
+                    "2. Visit http://localhost:3000 and test the auth flow"
                 )
             );
             console.log(
                 chalk.cyan(
-                    "   3. Use getUser() from lib/auth.ts to protect routes"
+                    "3. Use getUser() from lib/auth.ts to protect routes"
+                )
+            );
+            console.log(
+                chalk.cyan(
+                    "4. Customize the sign-in and sign-up pages in app/sign-in and app/sign-up"
                 )
             );
         }
