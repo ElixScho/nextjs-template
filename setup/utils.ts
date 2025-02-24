@@ -28,49 +28,45 @@ export function updateRootLayout(options: UpdateRootLayoutOptions) {
 
     // Add provider to the body if it doesn't exist
     if (!layoutContent.includes(options.providerComponent)) {
-        if (options.providerComponent.includes("{children}")) {
-            // For providers that wrap children
-            // Find the innermost provider or the children placeholder
-            const bodyMatch = layoutContent.match(
-                /<body[^>]*>([\s\S]*?){children}([\s\S]*?)<\/body>/
-            );
-            if (bodyMatch) {
-                const [, beforeChildren] = bodyMatch;
-                // Check if there are existing providers
-                const hasProviders = beforeChildren.includes("Provider");
+        // Find the body content
+        const bodyMatch = layoutContent.match(
+            /<body[^>]*>([\s\S]*?){children}([\s\S]*?)<\/body>/
+        );
+        if (bodyMatch) {
+            const [, beforeChildren, afterChildren] = bodyMatch;
+            let newBodyContent = beforeChildren;
 
-                if (hasProviders) {
-                    // Find the innermost provider's children
-                    const lastProviderMatch = beforeChildren.match(
-                        /(.*Provider[^>]*>)([\s\S]*)$/
-                    );
-                    if (lastProviderMatch) {
-                        const [, , indent] = lastProviderMatch;
-                        // Replace the children in the new provider and maintain indentation
-                        const indentedProvider =
-                            options.providerComponent.replace(
-                                "{children}",
-                                `\n${indent}{children}`
-                            );
-                        layoutContent = layoutContent.replace(
-                            /{children}/,
-                            indentedProvider
-                        );
-                    }
-                } else {
-                    // No existing providers, just wrap children
-                    layoutContent = layoutContent.replace(
-                        /{children}/,
-                        options.providerComponent
-                    );
-                }
+            // Find all existing providers
+            const providers =
+                beforeChildren.match(/<(\w+Provider)[^>]*>[\s\S]*?<\/\1>/g) ||
+                [];
+
+            // If we have providers, we need to handle nesting
+            if (providers.length > 0) {
+                // Get the innermost provider
+                const lastProvider = providers[providers.length - 1];
+                // Replace its children with our new provider
+                const newProviderContent = options.providerComponent.replace(
+                    "{children}",
+                    "{children}"
+                );
+                newBodyContent = beforeChildren.replace(
+                    lastProvider,
+                    lastProvider.replace(/{children}/, newProviderContent)
+                );
+            } else {
+                // No existing providers, just add at the start of body
+                newBodyContent = options.providerComponent + beforeChildren;
             }
-        } else {
-            // For providers that don't wrap children (like modals, toasts)
-            layoutContent = layoutContent.replace(
-                /<body([^>]*)>\s*(?=[\s\S]*{children})/,
-                `<body$1>\n                ${options.providerComponent}\n`
-            );
+
+            // Replace the body content
+            const bodyOpenTag = bodyMatch[0].match(/<body([^>]*>)/);
+            if (bodyOpenTag) {
+                layoutContent = layoutContent.replace(
+                    /<body[^>]*>[\s\S]*?<\/body>/,
+                    `<body${bodyOpenTag[1]}\n                ${newBodyContent}{children}${afterChildren}</body>`
+                );
+            }
         }
     }
 
