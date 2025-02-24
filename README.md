@@ -1,37 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Template
 
-## Getting Started
+A modern Next.js template with built-in support for:
 
-First, run the development server:
+-   🎨 shadcn/ui components with dark mode
+-   🔐 Authentication with Clerk
+-   💳 Payments with Stripe
+-   🗄️ Database with Prisma + Supabase
+-   🍞 Notifications with react-hot-toast
+-   📚 Component development with Storybook
+
+## Quick Start
+
+Create a new project using this template:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npx create-next-app@latest my-app --example https://github.com/yourusername/nextjs-template
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Once the project is created:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Navigate to your project:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cd my-app
+```
 
-## Learn More
+2. Run the setup script:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run setup
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Follow the interactive prompts to configure your project.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Features
 
-## Deploy on Vercel
+-   **Authentication**: Full authentication flow with Clerk
+-   **Database**: Prisma ORM with Supabase PostgreSQL
+-   **UI Components**: shadcn/ui with dark mode support
+-   **Payments**: Stripe integration
+-   **Development**: Storybook for component development
+-   **Type Safety**: TypeScript
+-   **Styling**: Tailwind CSS
+-   **Code Quality**: ESLint + Prettier
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# nextjs-template
+MIT
